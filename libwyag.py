@@ -66,7 +66,7 @@ class GitRepository(object):
         self.worktree = path
         self.gitdir = os.path.join(path, ".git")
 
-        if (not force or not os.path.isdir(self.gitdir)):
+        if not (force or os.path.isdir(self.gitdir)):
             raise Exception("Not a Git repository %s" % path)
 
         # read config file in .git/config
@@ -121,6 +121,18 @@ def repo_path(repo: GitRepository, *path):
 argparser = argparse.ArgumentParser(description="The stupid content tracker")
 argsubparsers = argparser.add_subparsers(title="Commands", dest="command")
 argsubparsers.required = True
+
+argsp = argsubparsers.add_parser(
+    "init", help="Initialize a new, empty repository.")
+argsp.add_argument("path",
+                   metavar="directory",
+                   nargs="?",
+                   default=".",
+                   help="Where to create the repository.")
+
+
+def cmd_init(args):
+    repo_create(args.path)
 
 
 def main(argv=sys.argv[1:]):
