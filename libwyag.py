@@ -118,6 +118,24 @@ def repo_path(repo: GitRepository, *path):
     return os.path.join(repo.gitdir, *path)
 
 
+def repo_find(path='.', required=True):
+    path = os.path.realpath(path)
+
+    if os.path.isdir(os.path.join(path, ".git")):
+        return GitRepository(path)
+
+    # o/w, recurse up
+    parent = os.path.realpath(os.path.join(path, ".."))
+
+    if parent == path:
+        # base case
+        # os.path.join("/", "..") == "/"
+        if required:
+            raise Exception("No git directory.")
+    else:
+        return repo_find(parent, required)
+
+
 argparser = argparse.ArgumentParser(description="The stupid content tracker")
 argsubparsers = argparser.add_subparsers(title="Commands", dest="command")
 argsubparsers.required = True
